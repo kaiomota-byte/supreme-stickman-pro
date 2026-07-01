@@ -29,24 +29,25 @@ export const Menu = {
     },
 
     startMatch(mode) {
-        const diffElem = document.getElementById('ai-difficulty');
-        const diff = diffElem ? diffElem.value : 'medium';
+        const diff = document.getElementById('ai-difficulty').value;
+        const w1 = document.getElementById('p1-weapon-select').value;
+        const w2 = document.getElementById('p2-weapon-select').value;
         this.changeScreen('game');
-        GameEngine.startMatch('ai', diff);
+        GameEngine.startMatch(mode, diff, w1, w2);
     },
 
     startLocalMatch() {
+        const w1 = document.getElementById('p1-weapon-select').value;
+        const w2 = document.getElementById('p2-weapon-select').value;
         this.changeScreen('game');
-        GameEngine.startMatch('local');
+        GameEngine.startMatch('local', 'medium', w1, w2);
     },
 
     showGameOver(winnerText) {
-        // Da um bônus de moedas para a carteira persistente do jogador
-        this.saveData.coins += 100;
+        this.saveData.coins += 80;
         Storage.save(this.saveData);
         this.init();
-
-        alert(`FIM DE PARTIDA\n${winnerText}\nVocê ganhou +$100 moedas!`);
+        alert(`PARTIDA ENCERRADA\n${winnerText}\nRecompensa: +$80 moedas!`);
         this.changeScreen('main');
     },
 
@@ -55,9 +56,9 @@ export const Menu = {
             this.saveData.coins -= price;
             this.init();
             Storage.save(this.saveData);
-            alert("Item desbloqueado e adicionado ao arsenal!");
+            alert("Item adquirido!");
         } else {
-            alert("Moedas insuficientes!");
+            alert("Saldo insuficiente!");
         }
     }
 };
