@@ -13,30 +13,30 @@
         <div id="main-menu" class="menu-screen">
             <h1>STICKMAN COMBAT EVOLVED</h1>
             <div class="menu-buttons">
-                <button onclick="Menu.changeScreen('modes')">JOGAR (vs IA)</button>
-                <button onclick="Menu.startLocalMatch()">MULTIPLAYER LOCAL</button>
-                <button onclick="Menu.changeScreen('shop')">LOJA & ARSENAL</button>
-                <button onclick="Menu.changeScreen('settings')">CONFIGURAÇÕES</button>
+                <button onclick="window.Menu.changeScreen('modes')">JOGAR (vs IA)</button>
+                <button onclick="window.Menu.startLocalMatch()">MULTIPLAYER LOCAL</button>
+                <button onclick="window.Menu.changeScreen('shop')">LOJA & ARSENAL</button>
+                <button onclick="window.Menu.changeScreen('settings')">CONFIGURAÇÕES</button>
             </div>
             <div id="currency-display">Moedas: $<span id="coin-count">0</span></div>
         </div>
 
         <div id="modes-menu" class="menu-screen hidden">
             <h2>SELECIONE O MODO</h2>
-            <button onclick="Menu.startMatch('duel')">DUELO</button>
-            <button onclick="Menu.startMatch('survival')">SOBREVIVÊNCIA</button>
-            <button onclick="Menu.startMatch('boss')">CHEFÃO</button>
-            <button onclick="Menu.changeScreen('main')">VOLTAR</button>
+            <button onclick="window.Menu.startMatch('duel')">DUELO</button>
+            <button onclick="window.Menu.startMatch('survival')">SOBREVIVÊNCIA</button>
+            <button onclick="window.Menu.startMatch('boss')">CHEFÃO</button>
+            <button onclick="window.Menu.changeScreen('main')">VOLTAR</button>
         </div>
 
         <div id="shop-menu" class="menu-screen hidden">
             <h2>LOJA E CUSTOMIZAÇÃO</h2>
             <div class="shop-grid">
-                <button onclick="Menu.buyItem('skin_gold', 500)">Skin Dourada ($500)</button>
-                <button onclick="Menu.buyItem('wpn_katana', 300)">Katana ($300)</button>
-                <button onclick="Menu.buyItem('wpn_laser', 1000)">Arma Laser ($1000)</button>
+                <button onclick="window.Menu.buyItem('skin_gold', 500)">Skin Dourada ($500)</button>
+                <button onclick="window.Menu.buyItem('wpn_katana', 300)">Katana ($300)</button>
+                <button onclick="window.Menu.buyItem('wpn_laser', 1000)">Arma Laser ($1000)</button>
             </div>
-            <button onclick="Menu.changeScreen('main')">VOLTAR</button>
+            <button onclick="window.Menu.changeScreen('main')">VOLTAR</button>
         </div>
 
         <div id="settings-menu" class="menu-screen hidden">
@@ -50,7 +50,7 @@
                 </select>
             </label>
             <br><br>
-            <button onclick="Menu.changeScreen('main')">SALVAR E VOLTAR</button>
+            <button onclick="window.Menu.changeScreen('main')">SALVAR E VOLTAR</button>
         </div>
 
         <div id="game-hud" class="hidden">
