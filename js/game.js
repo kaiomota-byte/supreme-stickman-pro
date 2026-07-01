@@ -1,15 +1,14 @@
-// js/game.js
 import { GameEngine } from './engine.js';
 import { Menu } from './menu.js';
+import { WeaponFactory } from './weapons.js';
 
-window.keys = {};
+window.WeaponFactory = WeaponFactory; // Deixe essa linha ativa!
 
-window.addEventListener('keydown', (e) => window.keys[e.key.toLowerCase()] = true);
-window.addEventListener('keyup', (e) => window.keys[e.key.toLowerCase()] = false);
-
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     GameEngine.init();
     Menu.init();
 });
-import { WeaponFactory } from './weapons.js';
-window.WeaponFactory = WeaponFactory;
+
+window.keys = {};
+window.addEventListener('keydown', (e) => { window.keys[e.key.toLowerCase()] = true; });
+window.addEventListener('keyup', (e) => { window.keys[e.key.toLowerCase()] = false; });
