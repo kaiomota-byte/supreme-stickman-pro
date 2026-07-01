@@ -5,19 +5,35 @@ export const Menu = {
     saveData: Storage.load(),
 
     init() {
-        document.getElementById('coin-count').innerText = this.saveData.coins;
+        const coinElem = document.getElementById('coin-count');
+        if (coinElem) coinElem.innerText = this.saveData.coins;
     },
 
     changeScreen(screen) {
+        // Esconde absolutamente todas as telas de menu
         document.querySelectorAll('.menu-screen').forEach(s => s.classList.add('hidden'));
-        if (screen !== 'game') {
+        
+        if (screen === 'game') {
+            // Mostra a tela de jogo e o Canvas
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('game-hud').classList.remove('hidden');
+        } else {
+            // Volta para a tela solicitada (ou a principal)
+            document.getElementById('gameCanvas').style.display = 'none';
+            document.getElementById('game-hud').classList.add('hidden');
+            
             const target = document.getElementById(`${screen}-menu`);
-            if (target) target.classList.remove('hidden');
+            if (target) {
+                target.classList.remove('hidden');
+            } else if (screen === 'main') {
+                document.getElementById('main-menu').classList.remove('hidden');
+            }
         }
     },
 
     startMatch(mode) {
-        const diff = document.getElementById('ai-difficulty').value;
+        const diffElem = document.getElementById('ai-difficulty');
+        const diff = diffElem ? diffElem.value : 'medium';
         this.changeScreen('game');
         GameEngine.startMatch('ai', diff);
     },
@@ -30,7 +46,8 @@ export const Menu = {
     buyItem(id, price) {
         if (this.saveData.coins >= price) {
             this.saveData.coins -= price;
-            document.getElementById('coin-count').innerText = this.saveData.coins;
+            const coinElem = document.getElementById('coin-count');
+            if (coinElem) coinElem.innerText = this.saveData.coins;
             Storage.save(this.saveData);
             alert("Item adquirido com sucesso e enviado ao Arsenal!");
         } else {
@@ -39,7 +56,7 @@ export const Menu = {
     }
 };
 
-// Vincula o Menu globalmente e garante o escopo correto para as funções de clique
+// Vincula o Menu globalmente para o HTML conseguir clicar
 window.Menu = Menu;
 window.Menu.changeScreen = Menu.changeScreen.bind(Menu);
 window.Menu.startMatch = Menu.startMatch.bind(Menu);
