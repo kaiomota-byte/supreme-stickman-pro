@@ -1,29 +1,29 @@
 export const MapManager = {
     maps: {
-        arena: { name: "Arena Clássica", platforms: [{ x: 640, y: 650, w: 1280, h: 60, static: true, color: '#2c2c35' }] },
+        arena: { name: "Arena Clássica", platforms: [{ x: 640, y: 660, w: 1280, h: 50, color: '#1e293b', isStatic: true }] },
         lava: { 
-            name: "Inferno de Lava", 
-            gravity: 0.6,
+            name: "Fábrica de Lava", 
+            gravity: 0.65,
             platforms: [
-                { x: 300, y: 450, w: 350, h: 30, static: true, color: '#3a3a3c' },
-                { x: 980, y: 450, w: 350, h: 30, static: true, color: '#3a3a3c' }
+                { x: 280, y: 480, w: 320, h: 25, color: '#334155', isStatic: true },
+                { x: 1000, y: 480, w: 320, h: 25, color: '#334155', isStatic: true },
+                { x: 640, y: 320, w: 250, h: 25, color: '#475569', isStatic: true }
             ],
-            hazards: [{ x: 640, y: 710, w: 1280, h: 40, type: "lava", color: '#ff3b30' }]
+            hazards: [{ x: 640, y: 710, w: 1280, h: 30, type: "lava", color: '#ef4444' }]
         },
         esteiras: {
-            name: "Fábrica de Esteiras",
+            name: "Fábrica Automação",
             platforms: [
-                { x: 640, y: 550, w: 600, h: 30, static: true, speed: 3.5, color: '#ffcc00' },
-                { x: 640, y: 300, w: 400, h: 30, static: true, speed: -3.5, color: '#ffcc00' }
+                { x: 640, y: 560, w: 700, h: 30, color: '#eab308', isStatic: true, speed: 3.0 },
+                { x: 640, y: 340, w: 450, h: 30, color: '#eab308', isStatic: true, speed: -3.0 }
             ]
         },
         espaco: {
-            name: "Gravidade Zero Lunar",
-            gravity: 0.1,
+            name: "Gravidade Lunar Zero",
+            gravity: 0.12,
             platforms: [
-                { x: 200, y: 600, w: 300, h: 20, static: true, color: '#545456' },
-                { x: 1080, y: 600, w: 300, h: 20, static: true, color: '#545456' },
-                { x: 640, y: 400, w: 200, h: 20, static: true, color: '#007aff' } // Plataforma pula-pula
+                { x: 300, y: 600, w: 400, h: 20, color: '#64748b', isStatic: true },
+                { x: 980, y: 600, w: 400, h: 20, color: '#64748b', isStatic: true }
             ]
         }
     },
@@ -35,25 +35,27 @@ export const MapManager = {
         engine.gravity.y = currentMap.gravity !== undefined ? currentMap.gravity : 0.6;
 
         currentMap.platforms.forEach(plat => {
-            const body = Bodies.rectangle(plat.x, plat.y, plat.w, plat.h, {
-                isStatic: plat.static,
+            const b = Bodies.rectangle(plat.x, plat.y, plat.w, plat.h, {
+                isStatic: true,
                 label: plat.speed ? "conveyor" : "ground",
-                render: { fillStyle: plat.color }
+                render: { visible: false } // Nós desenhamos via loop customizado
             });
-            if (plat.speed) body.speedValue = plat.speed;
-            Composite.add(engine.world, body);
+            b.mapColor = plat.color;
+            b.w = plat.w; b.h = plat.h;
+            if (plat.speed) b.speedValue = plat.speed;
+            Composite.add(engine.world, b);
         });
 
         if (currentMap.hazards) {
             currentMap.hazards.forEach(haz => {
-                const body = Bodies.rectangle(haz.x, haz.y, haz.w, haz.h, {
-                    isStatic: true,
-                    isSensor: true,
-                    label: haz.type,
-                    render: { fillStyle: haz.color }
+                const b = Bodies.rectangle(haz.x, haz.y, haz.w, haz.h, {
+                    isStatic: true, isSensor: true, label: haz.type
                 });
-                Composite.add(engine.world, body);
+                b.mapColor = haz.color;
+                b.w = haz.w; b.h = haz.h;
+                Composite.add(engine.world, b);
             });
         }
+        return currentMap;
     }
 };
