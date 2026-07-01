@@ -11,3 +11,5 @@ window.addEventListener('DOMContentLoaded', () => {
     GameEngine.init();
     Menu.init();
 });
+import { WeaponFactory } from './weapons.js';
+window.WeaponFactory = WeaponFactory;
