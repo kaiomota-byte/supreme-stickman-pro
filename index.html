@@ -13,65 +13,65 @@
         <div id="main-menu" class="menu-screen">
             <h1>STICKMAN COMBAT EVOLVED</h1>
             
-            <div style="display:flex; gap:20px; margin-bottom:25px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-                <label>Arma P1: 
-                    <select id="p1-weapon-select">
-                        <option value="katana" selected>Katana</option>
-                        <option value="motosserra">Motosserra</option>
-                        <option value="martelo">Martelo de Guerra</option>
-                        <option value="pistola">Pistola 9mm</option>
-                        <option value="escopeta">Escopeta Calibre 12</option>
-                        <option value="lança_foguetes">Lança Foguetes</option>
-                        <option value="laser_rifle">Rifle Laser</option>
-                    </select>
-                </label>
-                <label>Arma P2/IA: 
-                    <select id="p2-weapon-select">
-                        <option value="sword">Espada</option>
-                        <option value="machado">Machado</option>
-                        <option value="bastao_eletrico">Bastão de Choque</option>
-                        <option value="revolver">Revólver .38</option>
-                        <option value="sniper">Sniper de Precisão</option>
-                        <option value="granada">Granada</option>
-                        <option value="canhao_orbitais">Canhão Orbital</option>
-                    </select>
-                </label>
+            <div class="customizer-panel">
+                <div class="setup-block">
+                    <h3>Jogador 1</h3>
+                    <label>Cor: <select id="p1-color"><option value="#ff3b30">Vermelho</option><option value="#4cd964">Verde</option><option value="#ffcc00">Amarelo</option></select></label>
+                    <label>Arma: 
+                        <select id="p1-weapon-select">
+                            <optgroup label="Corpo a Corpo">
+                                <option value="sword">Espada de Aço</option><option value="katana" selected>Katana</option><option value="machado">Machado de Batalha</option><option value="lanca">Lança Longa</option><option value="martelo">Martelo de Guerra</option><option value="foice">Foice Sombria</option><option value="tridente">Tridente</option><option value="faca">Faca de Combate</option><option value="clava">Clava</option><option value="motosserra">Motosserra</option><option value="bastao_eletrico">Bastão de Choque</option>
+                            </optgroup>
+                            <optgroup label="Distância / Projéteis">
+                                <option value="arco">Arco Longo</option><option value="besta">Besta Pesada</option><option value="pistola">Pistola 9mm</option><option value="revolver">Revólver .38</option><option value="escopeta">Escopeta 12</option><option value="rifle">Rifle de Assalto</option><option value="sniper">Sniper</option><option value="metralhadora">Metralhadora</option><option value="lança_foguetes">RPG-7</option><option value="shuriken">Shuriken</option><option value="granada">Granada</option><option value="bomba">Bomba</option>
+                            </optgroup>
+                            <optgroup label="Futuristas">
+                                <option value="laser_rifle">Rifle de Plasma</option><option value="canhao_orbitais">Canhão Orbital</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="setup-block">
+                    <h3>Jogador 2 / IA</h3>
+                    <label>Dificuldade: 
+                        <select id="ai-difficulty">
+                            <option value="easy">Fácil (Iniciante)</option>
+                            <option value="medium" selected>Médio (Intermediário)</option>
+                            <option value="hard">Difícil (Estrategista)</option>
+                            <option value="extreme">Extremo (Imbatível)</option>
+                        </select>
+                    </label>
+                    <label>Arma: 
+                        <select id="p2-weapon-select">
+                            <option value="sword">Espada de Aço</option><option value="motosserra">Motosserra</option><option value="escopeta">Escopeta 12</option><option value="lança_foguetes">RPG-7</option><option value="canhao_orbitais">Canhão Orbital</option>
+                        </select>
+                    </label>
+                </div>
             </div>
 
             <div class="menu-buttons">
-                <button onclick="window.Menu.changeScreen('modes')">JOGAR (vs IA)</button>
-                <button onclick="window.Menu.startLocalMatch()">MULTIPLAYER LOCAL</button>
-                <button onclick="window.Menu.changeScreen('shop')">LOJA & ARSENAL</button>
+                <button onclick="window.Menu.startMatch('ai')">JOGAR (VS IA)</button>
+                <button onclick="window.Menu.startMatch('local')">MULTIPLAYER LOCAL</button>
+                <button onclick="window.Menu.changeScreen('shop')">LOJA DESBLOQUEIOS</button>
                 <button onclick="window.Menu.changeScreen('settings')">CONFIGURAÇÕES</button>
             </div>
-            <div id="currency-display">Moedas: $<span id="coin-count">0</span></div>
-        </div>
-
-        <div id="modes-menu" class="menu-screen hidden">
-            <h2>MODO SOLO</h2>
-            <button onclick="window.Menu.startMatch('ai')">DUELO CONTRA IA</button>
-            <button onclick="window.Menu.changeScreen('main')">VOLTAR</button>
+            <div id="currency-display">Sua Carteira: $<span id="coin-count">0</span></div>
         </div>
 
         <div id="shop-menu" class="menu-screen hidden">
-            <h2>LOJA</h2>
+            <h2>LOJA DE SKINS & ARSENAL</h2>
             <div class="shop-grid">
-                <button onclick="window.Menu.buyItem('skin_gold', 500)">Skin Dourada ($500)</button>
+                <button onclick="window.Menu.buyItem('skin_gold', 500)">Skins Lendárias ($500)</button>
+                <button onclick="window.Menu.buyItem('map_pack', 300)">Liberar Mapas Avançados ($300)</button>
             </div>
-            <button onclick="window.Menu.changeScreen('main')">VOLTAR</button>
+            <button onclick="window.Menu.changeScreen('main')">VOLTAR AO MENU</button>
         </div>
 
         <div id="settings-menu" class="menu-screen hidden">
-            <h2>CONFIGURAÇÕES</h2>
-            <label>Dificuldade da IA: 
-                <select id="ai-difficulty">
-                    <option value="easy">Fácil</option>
-                    <option value="medium" selected>Médio</option>
-                    <option value="hard">Difícil</option>
-                </select>
-            </label>
-            <br><br>
-            <button onclick="window.Menu.changeScreen('main')">SALVAR</button>
+            <h2>CONFIGURAÇÕES GERAIS</h2>
+            <label><input type="checkbox" id="blood-pref" checked> Efeitos de Partículas de Sangue</label>
+            <button onclick="window.Menu.changeScreen('main')">SALVAR E VOLTAR</button>
         </div>
 
         <div id="game-hud" class="hidden">
@@ -79,11 +79,9 @@
                 <div class="name">JOGADOR 1</div>
                 <div class="hp-bar"><div id="hp-p1" class="hp-fill"></div></div>
             </div>
-            
-            <button onclick="window.Menu.changeScreen('main')" style="padding:5px 15px; background:#ff3b30; font-size:12px; pointer-events:auto;">SAIR DA PARTIDA</button>
-            
+            <button id="btn-quit" onclick="window.Menu.quitMatch()">ABORTAR COMBATE</button>
             <div class="hud-player" id="hud-p2">
-                <div class="name" id="p2-name">BOT / P2</div>
+                <div class="name" id="p2-tag">BOT / INIMIGO</div>
                 <div class="hp-bar"><div id="hp-p2" class="hp-fill"></div></div>
             </div>
         </div>
