@@ -1,0 +1,17 @@
+{
+  "short_name": "StickmanCombat",
+  "name": "Stickman Combat Evolved",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/6895/6895514.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0b0b0d",
+  "theme_color": "#ff3333",
+  "display": "standalone",
+  "orientation": "landscape"
+}

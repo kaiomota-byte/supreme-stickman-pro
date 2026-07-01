@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stickman Combat Evolved</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div id="main-menu" class="menu-screen">
+            <h1>STICKMAN COMBAT EVOLVED</h1>
+            <div class="menu-buttons">
+                <button onclick="Menu.changeScreen('modes')">JOGAR (vs IA)</button>
+                <button onclick="Menu.startLocalMatch()">MULTIPLAYER LOCAL</button>
+                <button onclick="Menu.changeScreen('shop')">LOJA & ARSENAL</button>
+                <button onclick="Menu.changeScreen('settings')">CONFIGURAÇÕES</button>
+            </div>
+            <div id="currency-display">Moedas: $<span id="coin-count">0</span></div>
+        </div>
+
+        <div id="modes-menu" class="menu-screen hidden">
+            <h2>SELECIONE O MODO</h2>
+            <button onclick="Menu.startMatch('duel')">DUELO</button>
+            <button onclick="Menu.startMatch('survival')">SOBREVIVÊNCIA</button>
+            <button onclick="Menu.startMatch('boss')">CHEFÃO</button>
+            <button onclick="Menu.changeScreen('main')">VOLTAR</button>
+        </div>
+
+        <div id="shop-menu" class="menu-screen hidden">
+            <h2>LOJA E CUSTOMIZAÇÃO</h2>
+            <div class="shop-grid">
+                <button onclick="Menu.buyItem('skin_gold', 500)">Skin Dourada ($500)</button>
+                <button onclick="Menu.buyItem('wpn_katana', 300)">Katana ($300)</button>
+                <button onclick="Menu.buyItem('wpn_laser', 1000)">Arma Laser ($1000)</button>
+            </div>
+            <button onclick="Menu.changeScreen('main')">VOLTAR</button>
+        </div>
+
+        <div id="settings-menu" class="menu-screen hidden">
+            <h2>CONFIGURAÇÕES</h2>
+            <label>Dificuldade da IA: 
+                <select id="ai-difficulty">
+                    <option value="easy">Fácil</option>
+                    <option value="medium" selected>Médio</option>
+                    <option value="hard">Difícil</option>
+                    <option value="extreme">Extremo</option>
+                </select>
+            </label>
+            <br><br>
+            <button onclick="Menu.changeScreen('main')">SALVAR E VOLTAR</button>
+        </div>
+
+        <div id="game-hud" class="hidden">
+            <div class="hud-player" id="hud-p1">
+                <div class="name">JOGADOR 1</div>
+                <div class="hp-bar"><div id="hp-p1" class="hp-fill"></div></div>
+            </div>
+            <div id="match-timer">00:00</div>
+            <div class="hud-player" id="hud-p2">
+                <div class="name" id="p2-name">BOT</div>
+                <div class="hp-bar"><div id="hp-p2" class="hp-fill"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    
+    <script type="module" src="js/game.js"></script>
+
+    <script>
+     if ('serviceWorker' in navigator) {
+       navigator.serviceWorker.register('./sw.js');
+     }
+    </script>
+</body>
+</html>
