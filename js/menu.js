@@ -1,4 +1,3 @@
-// js/menu.js
 import { GameEngine } from './engine.js';
 import { Storage } from './storage.js';
 
@@ -12,7 +11,8 @@ export const Menu = {
     changeScreen(screen) {
         document.querySelectorAll('.menu-screen').forEach(s => s.classList.add('hidden'));
         if (screen !== 'game') {
-            document.getElementById(`${screen}-menu`).classList.remove('hidden');
+            const target = document.getElementById(`${screen}-menu`);
+            if (target) target.classList.remove('hidden');
         }
     },
 
@@ -38,4 +38,10 @@ export const Menu = {
         }
     }
 };
+
+// Vincula o Menu globalmente e garante o escopo correto para as funções de clique
 window.Menu = Menu;
+window.Menu.changeScreen = Menu.changeScreen.bind(Menu);
+window.Menu.startMatch = Menu.startMatch.bind(Menu);
+window.Menu.startLocalMatch = Menu.startLocalMatch.bind(Menu);
+window.Menu.buyItem = Menu.buyItem.bind(Menu);
