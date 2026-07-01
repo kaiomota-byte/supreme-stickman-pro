@@ -2,7 +2,8 @@ import { GameEngine } from './engine.js';
 import { Menu } from './menu.js';
 import { WeaponFactory } from './weapons.js';
 
-window.WeaponFactory = WeaponFactory; // Deixe essa linha ativa!
+window.WeaponFactory = WeaponFactory;
+window.GameEngine = GameEngine;
 
 document.addEventListener('DOMContentLoaded', () => {
     GameEngine.init();
