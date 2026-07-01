@@ -1,9 +1,9 @@
 {
-  "short_name": "StickmanCombat",
-  "name": "Stickman Combat Evolved",
+  "short_name": "StickmanSurreal",
+  "name": "Stickman Combat Evolved - Surreal Edition",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/6895/6895514.png",
+      "src": "./icone.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
