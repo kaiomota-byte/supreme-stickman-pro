@@ -9,7 +9,6 @@ body {
 }
 
 canvas {
-    display: block;
     position: absolute;
     top: 0;
     left: 0;
@@ -21,7 +20,6 @@ canvas {
     width: 100vw;
     height: 100vh;
     z-index: 10;
-    pointer-events: none;
 }
 
 .menu-screen {
@@ -32,15 +30,13 @@ canvas {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(11, 11, 13, 0.85);
-    backdrop-filter: blur(8px);
-    pointer-events: auto;
-    transition: opacity 0.3s ease;
+    background: #0b0b0d;
+    transition: opacity 0.2s ease;
+    z-index: 20;
 }
 
 .hidden {
-    opacity: 0;
-    pointer-events: none !important;
+    display: none !important;
 }
 
 h1 {
@@ -48,6 +44,7 @@ h1 {
     letter-spacing: 4px;
     text-shadow: 0 0 15px rgba(255, 51, 51, 0.6);
     margin-bottom: 40px;
+    text-align: center;
 }
 
 .menu-buttons {
@@ -84,6 +81,8 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 5;
+    pointer-events: none;
 }
 
 .hud-player {
