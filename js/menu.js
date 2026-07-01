@@ -10,15 +10,12 @@ export const Menu = {
     },
 
     changeScreen(screen) {
-        // Esconde absolutamente todas as telas de menu
         document.querySelectorAll('.menu-screen').forEach(s => s.classList.add('hidden'));
         
         if (screen === 'game') {
-            // Mostra a tela de jogo e o Canvas
             document.getElementById('gameCanvas').style.display = 'block';
             document.getElementById('game-hud').classList.remove('hidden');
         } else {
-            // Volta para a tela solicitada (ou a principal)
             document.getElementById('gameCanvas').style.display = 'none';
             document.getElementById('game-hud').classList.add('hidden');
             
@@ -43,20 +40,28 @@ export const Menu = {
         GameEngine.startMatch('local');
     },
 
+    showGameOver(winnerText) {
+        // Da um bônus de moedas para a carteira persistente do jogador
+        this.saveData.coins += 100;
+        Storage.save(this.saveData);
+        this.init();
+
+        alert(`FIM DE PARTIDA\n${winnerText}\nVocê ganhou +$100 moedas!`);
+        this.changeScreen('main');
+    },
+
     buyItem(id, price) {
         if (this.saveData.coins >= price) {
             this.saveData.coins -= price;
-            const coinElem = document.getElementById('coin-count');
-            if (coinElem) coinElem.innerText = this.saveData.coins;
+            this.init();
             Storage.save(this.saveData);
-            alert("Item adquirido com sucesso e enviado ao Arsenal!");
+            alert("Item desbloqueado e adicionado ao arsenal!");
         } else {
             alert("Moedas insuficientes!");
         }
     }
 };
 
-// Vincula o Menu globalmente para o HTML conseguir clicar
 window.Menu = Menu;
 window.Menu.changeScreen = Menu.changeScreen.bind(Menu);
 window.Menu.startMatch = Menu.startMatch.bind(Menu);
