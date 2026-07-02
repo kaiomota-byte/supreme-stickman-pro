@@ -1,3 +1,5 @@
+import { WeaponFactory } from './weapons.js'; // Ajuste o caminho se seu arquivo de armas tiver outro nome
+
 export class StickmanRagdoll {
     constructor(engine, x, y, color, weaponType, isPlayer2 = false) {
         this.engine = engine;
@@ -6,69 +8,79 @@ export class StickmanRagdoll {
         this.alive = true;
         this.facing = isPlayer2 ? -1 : 1;
         this.isPlayer2 = isPlayer2;
+        this.lastShot = 0;
 
-        const { Bodies, Constraint, Composite } = Matter;
-        const group = Matter.Body.nextGroup(true);
+        const { Bodies, Constraint, Composite, Body } = Matter;
+        // Cria um grupo de colisão isolado para o próprio boneco não se espancar sozinho
+        const group = Body.nextGroup ? Body.nextGroup(true) : -1;
 
-        // CONSTRUÇÃO ANATÔMICA COMPLETA RAGDOLL (Articulado)
-        this.head = Bodies.circle(x, y - 40, 11, { collisionFilter: { group: group }, friction: 0.1, label: "player_head" });
-        this.chest = Bodies.rectangle(x, y - 12, 12, 22, { collisionFilter: { group: group }, friction: 0.1, label: "player_body" });
-        this.bacia = Bodies.rectangle(x, y + 12, 12, 16, { collisionFilter: { group: group }, friction: 0.1, label: "player_body" });
+        // Propriedades físicas equilibradas: mais peso e mais atrito com o ar (frictionAir) para ritmar o movimento
+        const physOptions = { 
+            collisionFilter: { group: group }, 
+            friction: 0.3, 
+            frictionAir: 0.08, 
+            density: 0.0015 
+        };
 
-        this.lUpperArm = Bodies.rectangle(x - 14, y - 12, 6, 18, { collisionFilter: { group: group } });
-        this.lLowerArm = Bodies.rectangle(x - 14, y + 4, 5, 16, { collisionFilter: { group: group } });
-        this.rUpperArm = Bodies.rectangle(x + 14, y - 12, 6, 18, { collisionFilter: { group: group } });
-        this.rLowerArm = Bodies.rectangle(x + 14, y + 4, 5, 16, { collisionFilter: { group: group } });
-
-        this.lUpperLeg = Bodies.rectangle(x - 6, y + 28, 6, 20, { collisionFilter: { group: group }, friction: 0.2 });
-        this.lLowerLeg = Bodies.rectangle(x - 6, y + 46, 5, 18, { collisionFilter: { group: group }, friction: 0.2 });
-        this.rUpperLeg = Bodies.rectangle(x + 6, y + 28, 6, 20, { collisionFilter: { group: group }, friction: 0.2 });
-        this.rLowerLeg = Bodies.rectangle(x + 6, y + 46, 5, 18, { collisionFilter: { group: group }, friction: 0.2 });
-
-        this.parts = [this.head, this.chest, this.bacia, this.lUpperArm, this.lLowerArm, this.rUpperArm, this.rLowerArm, this.lUpperLeg, this.lLowerLeg, this.rUpperLeg, this.rLowerLeg];
-        this.parts.forEach(p => { p.isStickmanPart = true; p.owner = this; });
-
-        // CONEXÕES DE JUNTA RAGDOLL FLUIDA
-        this.joints = [
-            Constraint.create({ bodyA: this.head, bodyB: this.chest, pointA: { x: 0, y: 11 }, pointB: { x: 0, y: -12 }, stiffness: 0.85, render: { visible: false } }),
-            Constraint.create({ bodyA: this.chest, bodyB: this.bacia, pointA: { x: 0, y: 11 }, pointB: { x: 0, y: -9 }, stiffness: 0.85, render: { visible: false } }),
-            Constraint.create({ bodyA: this.chest, bodyB: this.lUpperArm, pointA: { x: -7, y: -8 }, pointB: { x: 0, y: -8 }, stiffness: 0.7, render: { visible: false } }),
-            Constraint.create({ bodyA: this.lUpperArm, bodyB: this.lLowerArm, pointA: { x: 0, y: 9 }, pointB: { x: 0, y: -8 }, stiffness: 0.7, render: { visible: false } }),
-            Constraint.create({ bodyA: this.chest, bodyB: this.rUpperArm, pointA: { x: 7, y: -8 }, pointB: { x: 0, y: -8 }, stiffness: 0.7, render: { visible: false } }),
-            Constraint.create({ bodyA: this.rUpperArm, bodyB: this.rLowerArm, pointA: { x: 0, y: 9 }, pointB: { x: 0, y: -8 }, stiffness: 0.7, render: { visible: false } }),
-            Constraint.create({ bodyA: this.bacia, bodyB: this.lUpperLeg, pointA: { x: -4, y: 8 }, pointB: { x: 0, y: -9 }, stiffness: 0.7, render: { visible: false } }),
-            Constraint.create({ bodyA: this.lUpperLeg, bodyB: this.lLowerLeg, pointA: { x: 0, y: 10 }, pointB: { x: 0, y: -9 }, stiffness: 0.7, render: { visible: false } }),
-            Constraint.create({ bodyA: this.bacia, bodyB: this.rUpperLeg, pointA: { x: 4, y: 8 }, pointB: { x: 0, y: -9 }, stiffness: 0.7, render: { visible: false } }),
-            Constraint.create({ bodyA: this.rUpperLeg, bodyB: this.rLowerLeg, pointA: { x: 0, y: 10 }, pointB: { x: 0, y: -9 }, stiffness: 0.7, render: { visible: false } })
-        ];
-
-        // ACOPLAMENTO REALISTA DE ARMA NO BRAÇO ATIVO
-        this.weapon = window.WeaponFactory.create(engine, x + (24 * this.facing), y - 10, weaponType);
-        this.weapon.owner = this;
-        const mainHand = this.facing === 1 ? this.rLowerArm : this.lLowerArm;
+        // Membros do Corpo
+        this.head = Bodies.circle(x, y - 45, 11, physOptions);
+        this.chest = Bodies.rectangle(x, y - 18, 12, 24, physOptions);
+        this.bacia = Bodies.rectangle(x, y + 8, 12, 16, physOptions);
         
-        this.handJoint = Constraint.create({
-            bodyA: mainHand, bodyB: this.weapon,
-            pointA: { x: 0, y: 8 }, pointB: { x: -this.weapon.gameConfig.length / 3, y: 0 },
-            stiffness: 0.9, length: 1, render: { visible: false }
+        this.lArm = Bodies.rectangle(x - 14, y - 10, 6, 26, physOptions);
+        this.rArm = Bodies.rectangle(x + 14, y - 10, 6, 26, physOptions);
+        this.lLeg = Bodies.rectangle(x - 6, y + 28, 6, 28, physOptions);
+        this.rLeg = Bodies.rectangle(x + 6, y + 28, 6, 28, physOptions);
+
+        this.parts = [this.head, this.chest, this.bacia, this.lArm, this.rArm, this.lLeg, this.rLeg];
+        
+        // Tags de identificação para o motor de colisão saber quem é quem
+        this.parts.forEach(p => { 
+            p.isStickmanPart = true; 
+            p.owner = this; 
+            p.label = "player_body"; 
         });
 
-        this.composite = Composite.create();
-        Composite.add(this.composite, [...this.parts, ...this.joints, this.weapon, this.handJoint]);
-        Composite.add(engine.world, this.composite);
+        // JUNTAS REFORÇADAS: stiffness alto (0.95) mantém a espinha ereta e firme!
+        this.joints = [
+            Constraint.create({ bodyA: this.head, bodyB: this.chest, pointA: { x: 0, y: 11 }, pointB: { x: 0, y: -13 }, stiffness: 0.95, render: { visible: false } }),
+            Constraint.create({ bodyA: this.chest, bodyB: this.bacia, pointA: { x: 0, y: 12 }, pointB: { x: 0, y: -9 }, stiffness: 0.95, render: { visible: false } }),
+            Constraint.create({ bodyA: this.chest, bodyB: this.lArm, pointA: { x: -7, y: -8 }, pointB: { x: 0, y: -11 }, stiffness: 0.85, render: { visible: false } }),
+            Constraint.create({ bodyA: this.chest, bodyB: this.rArm, pointA: { x: 7, y: -8 }, pointB: { x: 0, y: -11 }, stiffness: 0.85, render: { visible: false } }),
+            Constraint.create({ bodyA: this.bacia, bodyB: this.lLeg, pointA: { x: -4, y: 8 }, pointB: { x: 0, y: -12 }, stiffness: 0.85, render: { visible: false } }),
+            Constraint.create({ bodyA: this.bacia, bodyB: this.rLeg, pointA: { x: 4, y: 8 }, pointB: { x: 0, y: -12 }, stiffness: 0.85, render: { visible: false } })
+        ];
+
+        // GERAÇÃO DA ARMA
+        this.weapon = WeaponFactory.create(engine, x + (25 * this.facing), y - 15, weaponType);
+        this.weapon.owner = this;
+        
+        // EMPUNHADURA CORRIGIDA: Prende a mão do boneco na ponta traseira da arma (o cabo), não no meio!
+        this.handJoint = Constraint.create({
+            bodyA: this.rArm, 
+            bodyB: this.weapon,
+            pointA: { x: 0, y: 10 }, 
+            pointB: { x: -this.weapon.gameConfig.length / 2, y: 0 },
+            stiffness: 0.95, 
+            length: 1,
+            render: { visible: false }
+        });
+
+        Composite.add(engine.world, [...this.parts, ...this.joints, this.weapon, this.handJoint]);
     }
 
     move(dir) {
         if (!this.alive) return;
         this.facing = dir;
-        Matter.Body.setVelocity(this.chest, { x: dir * 4.2, y: this.chest.velocity.y });
+        // Passos cadenciados e firmes
+        Matter.Body.setVelocity(this.chest, { x: dir * 3.2, y: this.chest.velocity.y });
     }
 
     jump() {
         if (!this.alive) return;
-        // Verifica se está tocando o chão pelas pernas para pular, eliminando bug de pulo infinito no ar
-        if (Math.abs(this.bacia.velocity.y) < 0.5) {
-            Matter.Body.setVelocity(this.chest, { x: this.chest.velocity.x, y: -9.0 });
+        // Só pula se estiver com os pés firmes (estabilidade vertical próxima de zero)
+        if (Math.abs(this.bacia.velocity.y) < 0.4) {
+            Matter.Body.setVelocity(this.chest, { x: this.chest.velocity.x, y: -7.5 });
         }
     }
 
@@ -76,15 +88,24 @@ export class StickmanRagdoll {
         if (!this.alive) return;
         const config = this.weapon.gameConfig;
         
-        if (config.type === "ranged" || config.type === "throwable") {
-            if (!this.lastShot || Date.now() - this.lastShot > 500) {
-                window.GameEngine.fireProjectile(this, config);
+        if (config.type === "ranged") {
+            // Controle de cadência de tiro (500ms)
+            if (Date.now() - this.lastShot > 500) {
+                // O disparo será gerenciado pela Engine principal
+                if (window.GameEngine) window.GameEngine.fireProjectile(this, config);
                 this.lastShot = Date.now();
-                Matter.Body.applyForce(this.chest, this.chest.position, { x: -this.facing * (config.recoil * 0.0015), y: -0.001 });
+                // Força de recuo baseada no peso da arma de fogo
+                Matter.Body.applyForce(this.chest, this.chest.position, { 
+                    x: -this.facing * (config.recoil * 0.0008), 
+                    y: -0.0005 
+                });
             }
         } else {
-            // Golpe físico realístico baseado em rotação angular violenta
-            Matter.Body.setAngularVelocity(this.weapon, forceSign * 0.45);
+            // Limita o giro de armas brancas pesadas como a motosserra para não dar o efeito hélice
+            let targetVelocity = forceSign * 0.25;
+            if (config.name === "Motosserra") targetVelocity = forceSign * 0.12; 
+            
+            Matter.Body.setAngularVelocity(this.weapon, targetVelocity);
         }
     }
 
@@ -92,15 +113,15 @@ export class StickmanRagdoll {
         if (!this.alive) return;
         this.hp -= amount;
         
+        // Empurrão de impacto (Knockback) ao tomar dano
         if (attackerBody) {
-            // Impacto físico real empurrando o corpo de acordo com a pancada
-            const forceDir = (this.chest.position.x - attackerBody.position.x) > 0 ? 1 : -1;
-            Matter.Body.applyForce(this.chest, this.chest.position, { x: forceDir * 0.006, y: -0.003 });
+            const push = (this.chest.position.x - attackerBody.position.x) > 0 ? 1 : -1;
+            Matter.Body.applyForce(this.chest, this.chest.position, { x: push * 0.003, y: -0.0015 });
         }
 
-        if (this.hp <= 0) {
-            this.hp = 0;
-            this.die();
+        if (this.hp <= 0) { 
+            this.hp = 0; 
+            this.die(); 
         }
     }
 
@@ -108,76 +129,73 @@ export class StickmanRagdoll {
         if (!this.alive) return;
         this.alive = false;
         
-        // Desarticula totalmente as travas das juntas (Efeito Boneco de Pano Morto Real)
+        // Desarticulação total do Ragdoll na morte
         Matter.Composite.remove(this.engine.world, this.handJoint);
         this.joints.forEach(j => Matter.Composite.remove(this.engine.world, j));
-
-        // Força de dispersão dos membros
+        
         this.parts.forEach(b => {
-            Matter.Body.applyForce(b, b.position, { x: (Math.random() - 0.5) * 0.012, y: -0.015 });
+            Matter.Body.applyForce(b, b.position, { x: (Math.random() - 0.5) * 0.005, y: -0.005 });
         });
 
         setTimeout(() => {
-            window.GameEngine.endMatch(this.isPlayer2 ? "JOGADOR 1 VENCEU!" : "PLAYER 2 / BOT VENCEU!");
+            if (window.GameEngine) {
+                window.GameEngine.endMatch(this.isPlayer2 ? "VITÓRIA DO JOGADOR 1!" : "O BOT VENCEU A RODADA!");
+            }
         }, 2000);
     }
 
     draw(ctx) {
-        // ARTE ORIGINAL FLUIDA EM CANVAS (SEM RETÂNGULOS FEIOS)
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 4;
-        ctx.lineCap = "round";
+        ctx.strokeStyle = this.color; 
+        ctx.lineWidth = 4.5; 
+        ctx.lineCap = "round"; 
         ctx.fillStyle = this.color;
 
-        // Cabeça
-        ctx.beginPath();
-        ctx.arc(this.head.position.x, this.head.position.y, 11, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Tronco e Bacia
-        ctx.beginPath();
-        ctx.moveTo(this.head.position.x, this.head.position.y + 11);
+        // Desenho do Esqueleto do Stickman
+        ctx.beginPath(); ctx.arc(this.head.position.x, this.head.position.y, 11, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(this.head.position.x, this.head.position.y + 11);
         ctx.lineTo(this.chest.position.x, this.chest.position.y);
-        ctx.lineTo(this.bacia.position.x, this.bacia.position.y);
-        ctx.stroke();
+        ctx.lineTo(this.bacia.position.x, this.bacia.position.y); ctx.stroke();
 
-        // Braços
-        ctx.beginPath();
-        ctx.moveTo(this.chest.position.x, this.chest.position.y - 6);
-        ctx.lineTo(this.lUpperArm.position.x, this.lUpperArm.position.y);
-        ctx.lineTo(this.lLowerArm.position.x, this.lLowerArm.position.y);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.chest.position.x, this.chest.position.y - 4); ctx.lineTo(this.lArm.position.x, this.lArm.position.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.chest.position.x, this.chest.position.y - 4); ctx.lineTo(this.rArm.position.x, this.rArm.position.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.bacia.position.x, this.bacia.position.y); ctx.lineTo(this.lLeg.position.x, this.lLeg.position.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.bacia.position.x, this.bacia.position.y); ctx.lineTo(this.rLeg.position.x, this.rLeg.position.y); ctx.stroke();
 
-        ctx.beginPath();
-        ctx.moveTo(this.chest.position.x, this.chest.position.y - 6);
-        ctx.lineTo(this.rUpperArm.position.x, this.rUpperArm.position.y);
-        ctx.lineTo(this.rLowerArm.position.x, this.rLowerArm.position.y);
-        ctx.stroke();
-
-        // Pernas
-        ctx.beginPath();
-        ctx.moveTo(this.bacia.position.x, this.bacia.position.y);
-        ctx.lineTo(this.lUpperLeg.position.x, this.lUpperLeg.position.y);
-        ctx.lineTo(this.lLowerLeg.position.x, this.lLowerLeg.position.y);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(this.bacia.position.x, this.bacia.position.y);
-        ctx.lineTo(this.rUpperLeg.position.x, this.rUpperLeg.position.y);
-        ctx.lineTo(this.rLowerLeg.position.x, this.rLowerLeg.position.y);
-        ctx.stroke();
-
-        // ARTE DAS ARMAS REALISTAS DETALHADAS
+        // SPRITES VETORIAIS MELHORADOS PARA AS ARMAS
         const config = this.weapon.gameConfig;
         ctx.save();
         ctx.translate(this.weapon.position.x, this.weapon.position.y);
         ctx.rotate(this.weapon.angle);
         
-        ctx.fillStyle = config.type === "ranged" ? "#334155" : "#475569"; // Cabo / Coronha
-        ctx.fillRect(-config.length/2, -config.thickness/2, config.length/4, config.thickness);
-        
-        ctx.fillStyle = config.color; // Lâmina ou Cano Principal Metálico
-        ctx.fillRect(-config.length/4, -config.thickness/2, config.length * 0.75, config.thickness);
+        if (config.type === "ranged") {
+            // Corpo traseiro / Cabo da arma de fogo
+            ctx.fillStyle = "#1e1b4b"; 
+            ctx.fillRect(0, -config.thickness/2, config.length * 0.25, config.thickness * 1.5); 
+            // Cano metálico
+            ctx.fillStyle = config.color; 
+            ctx.fillRect(config.length * 0.25, -config.thickness/2, config.length * 0.75, config.thickness); 
+            // Ponto laser de mira
+            ctx.fillStyle = "#ef4444"; 
+            ctx.fillRect(config.length * 0.4, -config.thickness, 6, 3); 
+        } else {
+            // Cabo de madeira/couro das armas brancas
+            ctx.fillStyle = "#451a03"; 
+            ctx.fillRect(0, -config.thickness/2, config.length * 0.2, config.thickness); 
+            // Lâmina/Metal principal
+            ctx.fillStyle = config.color; 
+            ctx.fillRect(config.length * 0.2, -config.thickness/2, config.length * 0.8, config.thickness); 
+            
+            if (config.name === "Motosserra") {
+                // Bloco do motor industrial
+                ctx.fillStyle = "#b91c1c"; 
+                ctx.fillRect(config.length * 0.2, -config.thickness * 1.2, config.length * 0.3, config.thickness * 2.4); 
+                // Linhas simulando dentes da corrente
+                ctx.strokeStyle = "#fff"; 
+                ctx.lineWidth = 1.5; 
+                ctx.beginPath(); 
+                ctx.strokeRect(config.length * 0.5, -config.thickness/2, config.length * 0.5, config.thickness);
+            }
+        }
         ctx.restore();
     }
 }
